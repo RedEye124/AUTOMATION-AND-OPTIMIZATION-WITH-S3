@@ -1,0 +1,25 @@
+import boto3
+
+s3 = boto3.client('s3')
+
+def lambda_handler(event, context):
+    source_bucket_name = 'your bucket 1 name'
+    destination_bucket_name = 'you bucket 2 name'
+
+    try:
+        # List objects in the source bucket
+        objects = s3.list_objects_v2(Bucket=source_bucket_name)
+
+        if 'Contents' in objects:
+            for obj in objects['Contents']:
+                source_key = obj['Key']
+                # Copy the object from the source bucket to the destination bucket
+                s3.copy_object(CopySource={'Bucket': source_bucket_name, 'Key': source_key},
+                               Bucket=destination_bucket_name,
+                               Key=source_key)
+                print(f'Copied {source_key} from {source_bucket_name} to {destination_bucket_name}')
+
+        print('All files copied from source bucket to destination bucket.')
+
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
